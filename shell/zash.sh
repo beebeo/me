@@ -12,14 +12,14 @@ install_git() {
 	clear
 	yum install git -y
 	read -p "Enter file in which to save the key: " FILE_NAME
-	ssh-keygen -t rsa -b 4096 -f $FILE_NAME
+	ssh-keygen -t rsa -b 4096 -f /root/.ssh/$FILE_NAME
 	clear
 	echo "==================== COPY SSH KEY to your github ===================="
 	echo -e
-	cat $FILE_NAME.pub
+	cat /root/.ssh/$FILE_NAME.pub
 	echo -e
 	eval `ssh-agent -s`
-	ssh-add /root/$FILE_NAME
+	ssh-add /root/.ssh/$FILE_NAME
 	bash -i
 }
 
@@ -57,6 +57,16 @@ fi
 
 # update
 if [ "$1" == "pull" ]; then
+	if [ ! -d ".git" ]; then
+		echo "not a git repository (or any of the parent directories): .git"
+		exit
+	fi
+
+	if [ ! -f "docker-compose.yml" ]; then
+		echo "not a docker-compose file"
+		exit
+	fi
+
 	git pull
 	docker-compose build
 	docker-compose up -d
@@ -66,5 +76,10 @@ fi
 # no command
 if [ "$1" == "" ]; then
 	clear
-	echo "zash COMMAND"
+	echo "zash <command>"
+	echo ""
+	echo "Usage:"
+	echo "	zash install git                install git and ssh key to vps"
+	echo "	zash install docker             install docker to vps"
+	echo "	zash pull                       git pull and docker rebuild to project"
 fi
