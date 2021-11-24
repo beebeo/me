@@ -46,26 +46,14 @@ install_docker() {
 
 # install
 if [ "$1" == "install" ]; then
-	if [ "$2" == "git" ]; then
-		install_git
-	fi
-
-	if [ "$2" == "docker" ]; then
-		install_docker
-	fi
+	[ "$2" == "git" ] && install_git
+	[ "$2" == "docker" ] && install_docker
 fi
 
 # update
 if [ "$1" == "pull" ]; then
-	if [ ! -d ".git" ]; then
-		echo "not a git repository (or any of the parent directories): .git"
-		exit
-	fi
-
-	if [ ! -f "docker-compose.yml" ]; then
-		echo "not a docker-compose file"
-		exit
-	fi
+	[ ! -d ".git" ] && { echo "not a git repository (or any of the parent directories): .git"; exit; }
+	[ ! -f "docker-compose.yml" ] && { echo "not a docker-compose file"; exit; }
 
 	git pull
 	docker-compose build
