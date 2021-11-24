@@ -6,3 +6,6 @@
 
 ### [Nginx](./nginx)
 - [Cấu hình timezone cho server](./nginx/configure-timezone.md)
+
+### [Shell Script](./shell)
+- [zash Script (git && docker)](./shell/zash-install-and-pull.md)
