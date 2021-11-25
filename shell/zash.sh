@@ -44,6 +44,48 @@ install_docker() {
 	docker-compose --version
 }
 
+# setup ssh key login vps
+setup_ssh_key() {
+	clear
+	read -p "Please enter your public key: " PUBLIC_KEY
+	read -p 'Enter new port SSH (number): ' PORT
+
+	mkdir -p ~/.ssh
+	chmod 700 ~/.ssh
+	echo $PUBLIC_KEY >> ~/.ssh/authorized_keys
+	chmod 600 ~/.ssh/authorized_keys
+
+	sed -i "s/\#Port 22/Port $PORT/g" /etc/ssh/sshd_config
+	sed -i 's/\PubkeyAuthentication no/PubkeyAuthentication yes/g' /etc/ssh/sshd_config
+	sed -i 's/\#PubkeyAuthentication/PubkeyAuthentication/g' /etc/ssh/sshd_config
+	sed -i 's/\PermitEmptyPasswords yes/PermitEmptyPasswords no/g' /etc/ssh/sshd_config
+	sed -i 's/\#PermitEmptyPasswords/PermitEmptyPasswords/g' /etc/ssh/sshd_config
+	sed -i 's/.ssh\/authorized_keys/~\/.ssh\/authorized_keys/g' /etc/ssh/sshd_config
+	sed -i 's/PasswordAuthentication yes/PasswordAuthentication no/g' /etc/ssh/sshd_config
+	sed -i 's/UsePAM yes/UsePAM no/g' /etc/ssh/sshd_config
+
+	firewall-cmd --add-port=$PORT/tcp --permanent
+	firewall-cmd --reload
+	sudo semanage port -a -t ssh_port_t -p tcp $PORT
+	sudo systemctl reload sshd.service
+
+	clear
+	hostname=`hostname`
+	ip_server=`hostname -I`
+	echo "Edit SSH Config File:			sudo nano ~/.ssh/config"
+	echo ""
+	echo "Host " $hostname
+	echo "	User root"
+	echo "	Port " $PORT
+	echo "	HostName " $ip_server
+	echo "	IdentityFile PRIVATE_KEY"
+}
+
+# setup
+if [ "$1" == "setup" ]; then
+	setup_ssh_key
+fi
+
 # install
 if [ "$1" == "install" ]; then
 	[ "$2" == "git" ] && install_git
@@ -67,7 +109,8 @@ if [ "$1" == "" ]; then
 	echo "zash <command>"
 	echo ""
 	echo "Usage:"
-	echo "	zash install git                install git and ssh key to vps"
-	echo "	zash install docker             install docker to vps"
+	echo "	zash setup                      setup login ssh with private key and change port ssh"
+	echo "	zash install git                install git and ssh key"
+	echo "	zash install docker             install docker"
 	echo "	zash pull                       git pull and docker rebuild to project"
 fi
