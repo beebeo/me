@@ -18,6 +18,11 @@ install_git() {
 	echo -e
 	cat /root/.ssh/$FILE_NAME.pub
 	echo -e
+	if ! grep -q 'ssh-agent' ~/.bashrc
+	then
+		echo 'eval `ssh-agent -s`' >> ~/.bashrc
+	fi
+	echo 'ssh-add /root/.ssh/'$FILE_NAME >> ~/.bashrc
 	eval `ssh-agent -s`
 	ssh-add /root/.ssh/$FILE_NAME
 	bash -i
