@@ -74,7 +74,7 @@ setup_ssh_key() {
 
 	clear
 	hostname=`hostname`
-	ip_server=`hostname -I`
+	ip_server=`hostname -I | cut -d' ' -f1`
 	echo "Edit SSH Config File:			sudo nano ~/.ssh/config"
 	echo ""
 	echo "Host " $hostname
