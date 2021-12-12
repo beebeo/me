@@ -50,6 +50,7 @@ install_docker() {
 # setup ssh key login vps
 setup_ssh_key() {
 	clear
+	yum install nano -y
 	read -p "Please enter your public key: " PUBLIC_KEY
 	read -p 'Enter new port SSH (number): ' PORT
 
