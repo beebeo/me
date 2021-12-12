@@ -67,8 +67,11 @@ setup_ssh_key() {
 	sed -i 's/PasswordAuthentication yes/PasswordAuthentication no/g' /etc/ssh/sshd_config
 	sed -i 's/UsePAM yes/UsePAM no/g' /etc/ssh/sshd_config
 
-	firewall-cmd --add-port=$PORT/tcp --permanent
-	firewall-cmd --reload
+	if [ "$(type -t firewall-cmd)" ]; then
+		firewall-cmd --add-port=$PORT/tcp --permanent
+		firewall-cmd --reload
+	fi
+
 	sudo semanage port -a -t ssh_port_t -p tcp $PORT
 	sudo systemctl reload sshd.service
 
@@ -77,10 +80,10 @@ setup_ssh_key() {
 	ip_server=`hostname -I | cut -d' ' -f1`
 	echo "Edit SSH Config File:			sudo nano ~/.ssh/config"
 	echo ""
-	echo "Host " $hostname
+	echo "Host "$hostname
 	echo "	User root"
-	echo "	Port " $PORT
-	echo "	HostName " $ip_server
+	echo "	Port "$PORT
+	echo "	HostName "$ip_server
 	echo "	IdentityFile PRIVATE_KEY"
 }
 
