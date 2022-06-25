@@ -107,7 +107,7 @@ if [ "$1" == "pull" ]; then
 	git pull
 	docker-compose build
 	docker-compose up -d
-	docker system prune
+	docker system prune -f
 fi
 
 # no command
